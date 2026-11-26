@@ -46,6 +46,10 @@
         <img src='../content/loading.png' class='loading'>
         <p>処理が終わらない場合は、お手数かけますが再読み込みをお願いします。</p>
       </dialog>
+      <dialog id='terms'>
+        <h2>ご利用の際は、<a href='../about/terms_of_use.html'>こちらの利用規約</a>に同意する必要があります。</h2>
+        <button>利用規約を読み、同意しました</button>
+      </dialog>
     </main>
     
     <footer>
@@ -63,6 +67,7 @@
   
   <script>
     window.addEventListener('DOMContentLoaded', () => {
+      termsofuse();
       const form = document.querySelector("form");
       form.addEventListener("submit", async (event) => {
         try {
