@@ -67,6 +67,11 @@
         <summary>利用規約</summary>
         <iframe src='terms_of_use.html' style='width: 100%; height: 100vh;'></iframe>
       </details>
+
+      <dialog id='terms'>
+        <h2>ご利用の際は、<a href='../../about/terms_of_use.html'>こちらの利用規約</a>に同意する必要があります。</h2>
+        <button>利用規約を読み、同意しました</button>
+      </dialog>
     </main>
     
     <footer>
@@ -80,6 +85,12 @@
       <p>当サイトの許可なき無断転載および複製を禁じます(多少のスクリーンショットなどは除く)。</p>
     </footer>
   </div>
+
+  <script>
+    window.addEventListener('DOMContentLoaded', () => {
+      termsofuse();
+    });
+  </script>
 </body>
 
 </html>
