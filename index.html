@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>保存屋さん</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+  <div id="main">
+    <header>
+      <h1>イラスト保存屋さん</h1>
+      <menu>
+        <a href='index.html'>ホーム</a>
+        <a href='newfile/'>ファイル作成</a>
+        <a href='about/'>使い方</a>
+      </menu>
+    </header>
+    
+    <div id="create" class='cb'>
+      <p style="margin: 2px;">データの作成は<a href="newfile">こちら</a></p>
+    </div>
+    <hr>
+    
+    <main>
+      <div id="search">
+        <label>ファイル名検索: <input type="search" size="15" placeholder="ファイル名を入力"></label>
+        <div id="searchResults">
+          <h2>始めましょう！</h2>
+          <p>あなただけの秘密の保存庫</p>
+        </div>
+      </div>
+    </main>
+    
+    <footer>
+      <label>SNS</label>
+      <div id="SNS">
+        <a href='https://youtube.com/channel/UCnNEcmelr_ct8Ctf1b8pgGQ'><img src="SNSImages/youtube.svg"></a>
+        <a href='https://twitter.com/suugaku_tanoshi'><img src="SNSImages/x.svg"></a>
+        <a href="https://discord.com/users/wagacourse"><img src="SNSImages/discord.svg"></a>
+      </div>
+      <p>Copyright © わがコースあそんでね</p>
+      <p>All Rights Reserved.</p>
+      <p>当サイトの許可なき無断転載および複製を禁じます(多少のスクリーンショットなどは除く)。</p>
+    </footer>
+  </div>
+  
+  <script>
+    let fileId = document.querySelector('#search input');
+    fileId.addEventListener("change", () => {
+      showFiles();
+    });
+    let rslv;
+    const idPromise = new Promise(resolve => {
+      rslv = resolve;
+    });
+    let allIds;
+    document.addEventListener('DOMContentLoaded', async() => {
+      try{
+        const gasURL = "https://script.google.com/macros/s/AKfycbwsu5W_j7Z1XO1Dk3a5-AXICk9W2eaiZetz89msLvlSXdc_cf34cgkWTsIilqqAjaj15g/exec";
+        const response = await fetch(gasURL)
+        allIds = await response.json();
+        rslv();
+        if(!response.ok){
+          console.log('バグった');
+          return;
+        }
+      } catch(e) {
+        console.log('エラった'+e);
+        return;
+      }
+    });
+    
+    async function searchFile(fileName){
+      if(allIds){
+        let resultList = [];
+        allIds.forEach(key => {
+          if(key.includes(fileName)){
+            resultList.push(key);
+          };
+        });
+        return resultList;
+      }
+      await idPromise;
+      console.log('resolved');
+      let resultList = [];
+      allIds.forEach(key => {
+        if(key.includes(fileName)){
+          resultList.push(key);
+        };
+      });
+      return resultList;
+    }
+    async function showFiles(){
+      let resultsPar = document.getElementById("searchResults");
+      let waiter = document.createElement('i');
+      waiter.textContent = 'Searching...';
+      while(resultsPar.firstChild){
+        resultsPar.removeChild(resultsPar.firstChild);
+      }
+      resultsPar.appendChild(waiter);
+      const fileName = fileId.value;
+      const fileIdList = await searchFile(fileName);
+      if(!fileIdList.length){
+        waiter.firstChild.textContent = "There is no one but us chickens!";
+      }
+      else{
+        let frag = document.createDocumentFragment();
+        fileIdList.forEach(key => {
+          let elem = document.createElement('a');
+          elem.textContent = key;
+          elem.setAttribute('href', `content/?page=${key}`);
+          elem.setAttribute('class', 'result')
+          frag.appendChild(elem);
+        });
+        resultsPar.replaceChildren(frag);
+      }};
+  </script>
+</body>
+
+</html>

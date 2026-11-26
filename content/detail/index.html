@@ -1,0 +1,190 @@
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>保存屋さん</title>
+  <link rel="stylesheet" href="../../style.css">
+  <script src="../../command.js" defer></script>
+  <meta name="referrer" content="no-referrer">
+</head>
+
+<body>
+  <div id="main">
+    <header>
+      <h1>イラスト保存屋さん</h1>
+      <menu>
+        <a href='../../index.html'>ホーム</a>
+        <a href='../../newfile/'>ファイル作成</a>
+        <a href='../../about/'>使い方</a>
+      </menu>
+    </header>
+    
+    <main>
+      <div id="illust">
+        <textarea placeholder="説明やタグなど"></textarea>
+        <input type='text' id='ref'><br>
+        <button>変更を保存する</button>
+      </div>
+      <dialog id='loadWindow'>
+        <h2>処理中です</h2>
+        <p>少しの間お待ちください。</p>
+        <p>この処理は数秒ほどで完了します…</p>
+        <img src='../loading.png' class='loading'>
+        <p>処理が終わらない場合は、お手数かけますが再読み込みをお願いします。</p>
+      </dialog>
+    </main>
+    
+    <footer>
+      <label>SNS</label>
+      <div id="SNS">
+        <a href='https://youtube.com/channel/UCnNEcmelr_ct8Ctf1b8pgGQ'><img src="../../SNSImages/youtube.svg"></a>
+        <a href='https://twitter.com/suugaku_tanoshi'><img src="../../SNSImages/x.svg"></a>
+        <a href="https://discord.com/users/wagacourse"><img src="../../SNSImages/discord.svg"></a>
+      </div>
+      <p>Copyright © わがコースあそんでね</p>
+      <p>All Rights Reserved.</p>
+      <p>当サイトの許可なき無断転載および複製を禁じます(多少のスクリーンショットなどは除く)。</p>
+    </footer>
+  </div>
+  
+  <script>
+    let params;
+    let img;
+    let descText;
+    const gasURL = "https://script.google.com/macros/s/AKfycbwsu5W_j7Z1XO1Dk3a5-AXICk9W2eaiZetz89msLvlSXdc_cf34cgkWTsIilqqAjaj15g/exec";
+    window.addEventListener('DOMContentLoaded', () => {
+      params = new URLSearchParams(window.location.search);
+      img = params.get('page');
+      descText = params.get('desc');
+      showData();
+    });
+    
+    async function waitImgLoad(){
+      return await new Promise((resolve, reject) => {
+        const image = new Image();
+        image.src = img;
+        image.onload = () => resolve();
+        image.onerror = (e) => reject(e);
+      })
+    }
+
+    async function waitVideoLoad(){
+      return await new Promise((resolve, reject) => {
+        const video = document.createElement('video');
+        video.playsinline = true;
+        video.loop = true;
+        video.autoplay = true;
+        video.controls = true;
+        video.muted = true;
+        video.preload = 'auto';
+        
+        video.src = img;
+        video.addEventListener('canplay', () => resolve(video));
+        video.addEventListener('error', () => reject(video.error));
+      })
+    }
+
+    function getUrlType(url){
+      if(/\.(png|jpg|jpeg|webp|svg|heic|heif)(\?|#|$)/i.test(url)){
+        return 'img';
+      } else if(/\.(mp4|m4v|mp4v|webm|mov|qt|gifv|avi|wmv|asf|mkv|mk3d|flv|f4v|mpg|mpeg|mpe|mpv|m2v|m1v|mp2|mts|m2ts|vob|ogv|ogm|3gp|3g2|3gpp|3gpp2|rm|rmvb|divx|xvid|dv|dvr-ms|wtv|hevc|h264|h265|av1|vp8|vp9|mxf)(\?|#|$)/i.test(url)){
+        return 'video';
+      } else {
+        return 'img';
+      }
+    }
+    
+    async function showData(){
+      try {
+        startLoad();
+      } catch(e) {
+        alert('想定外のエラーが発生しました。\n再読込してください。');
+      }
+      const illustPar = document.getElementById('illust');
+      const descArea = document.querySelector('#illust textarea');
+      const ref = document.querySelector('#ref');
+      const descEditBtn = document.querySelector('#illust button');
+      const contentType = getUrlType(img);
+      const illustNode = document.createElement(contentType);
+      if (contentType == 'video') {
+        illustNode.referrerPolicy = 'no-referrer';
+        illustNode.controls = true;
+        illustNode.autoplay = true;
+        illustNode.playsinline = true;
+        illustNode.loop = true;
+      } else {
+            illustNode.referrerPolicy = 'strict-origin-when-cross-origin';
+      }
+      illustPar.prepend(illustNode);
+      illustNode.setAttribute('src', img);
+      illustNode.setAttribute('class', 'mainIllust')
+      illustNode.addEventListener('error', () => {
+        const imgNode = document.createElement('img');
+        imgNode.src = '../failed.png';
+        imgNode.alt = '読込失敗';
+        imgNode.width = illustNode.width;
+        illustNode.replaceWith(imgNode);
+      });
+      descArea.value = descText;
+      ref.value = img;
+      
+      console.log(descArea.value);
+      descEditBtn.addEventListener('click', () => editDesc(descArea.value));
+      try{
+        if(contentType == 'img'){
+          await waitImgLoad();
+        } else if(contentType == 'video'){
+          await waitVideoLoad();
+        }
+      } catch (e) {
+        alert(`読み込みに失敗しました。\n${e.code}`);
+      }
+      endLoad();
+    }
+    
+    async function editDesc(descText){
+      startLoad();
+      const userName = params.get('user');
+      console.log(userName);
+      const id = params.get('id');
+      const options = {
+        method: "POST",
+        /*headers: {
+         'Content-Type': 'application/json'
+        },*/
+        body: JSON.stringify({
+          'userName': userName,
+          'contentId': id,
+          'password': localStorage.getItem(userName),
+          'desc': descText,
+          'ref': document.querySelector('#ref').value,
+          'Action': 'EditContent'
+        })
+      }
+      try{
+        const response = await fetch(gasURL, options);
+        const dataText = await response.text();
+        console.log(dataText);
+        if(dataText == "IncorrectPasswordError"){
+          alert('パスワードバグった');
+          endLoad();
+          return;
+        }
+        if(!response.ok){
+          console.log('バグった');
+          endLoad()
+          return;
+        }
+      } catch(e) {
+        console.log('エラった'+e);
+        endLoad()
+        return;
+      }
+      endLoad();
+      alert('保存が完了しました！');
+    }
+  </script>
+</body>
+
+</html>

@@ -1,0 +1,502 @@
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>保存屋さん</title>
+  <link rel="stylesheet" href="../style.css">
+  <script src="../command.js" defer></script>
+  <meta name="referrer" content="no-referrer">
+</head>
+
+<body>
+  <div id="main">
+    <header>
+      <h1>イラスト保存屋さん</h1>
+      <menu>
+        <a href='../index.html'>ホーム</a>
+        <a href='../newfile/'>ファイル作成</a>
+        <a href='../about/'>使い方</a>
+      </menu>
+    </header>
+    
+    <main>
+      <div id="content">
+        <h1></h1>
+        <div id="info"></div>
+        <div id="password">
+          <label>パスワードを入力してください</label><br>
+          <input type="text">
+        </div>
+        
+        <select id='viewSelect'>
+          <option value=3>3個/行</option>
+          <option value=2>2個/行</option>
+          <option value=1>イラストを100%表示</option>
+          <option value='withDesc'>説明も表示</option>
+        </select>
+        
+        <div id='searchByDesc'>
+          <label>説明文で探す(部分検索)<br><input type='text'></label>
+        </div>
+        
+        <div id="illust">
+          <img src="cover.png" id="cover">
+          <div class="defContainer cb">
+            <h2>パスワードが必要です</h2>
+            <p>自分のファイルじゃない？</p>
+            <p>なら、今すぐ<a href="../newfile/" style='color: black;'>こちら</a>で作成</p>
+          </div>
+        </div>
+        
+        <div id="settings" style='display: none;'>
+          <input type='text' placeholder="画像のURL(半角スペース区切り)" id="url"><br>
+          <button id='addBtn'>上のURLを追加する</button><br>
+          <button id='copyBtn'>このファイルの全てのURLをコピーする</button><br>
+          <input type='text' placeholder="変更後のファイル名" id="newname"><br>
+          <button id='nameBtn'>ファイル名を変更する</button><br>
+        </div>
+      </div>
+      
+      <dialog id='loadWindow'>
+        <h2>処理中です</h2>
+        <p>少しの間お待ちください。</p>
+        <p>この処理は数秒ほどで完了します…</p>
+        <img src='loading.png' class='loading'>
+        <p>処理が終わらない場合は、お手数かけますが再読み込みをお願いします。</p>
+      </dialog>
+    </main>
+
+    <footer>
+      <label>SNS</label>
+      <div id="SNS">
+        <a href='https://youtube.com/channel/UCnNEcmelr_ct8Ctf1b8pgGQ'><img src="../SNSImages/youtube.svg"></a>
+        <a href='https://twitter.com/suugaku_tanoshi'><img src="../SNSImages/x.svg"></a>
+        <a href="https://discord.com/users/wagacourse"><img src="../SNSImages/discord.svg"></a>
+      </div>
+      <p>Copyright © わがコースあそんでね</p>
+      <p>All Rights Reserved.</p>
+      <p>当サイトの許可なき無断転載および複製を禁じます(多少のスクリーンショットなどは除く)。</p>
+    </footer>
+  </div>
+  
+  <script>
+    let data;
+    let pass;
+    const gasURL = "https://script.google.com/macros/s/AKfycbwsu5W_j7Z1XO1Dk3a5-AXICk9W2eaiZetz89msLvlSXdc_cf34cgkWTsIilqqAjaj15g/exec";
+    const userName = new URLSearchParams(window.location.search).get('page');
+    window.addEventListener("DOMContentLoaded", () => {
+      const fileName = new URLSearchParams(window.location.search).get('page');
+      let fileNamePlace = document.querySelector('#content h1');
+      fileNamePlace.textContent = fileName;
+    passEntryPlace = document.querySelector("#password input");
+    passEntryPlace.addEventListener('change', () => loadContents());
+    if(localStorage.getItem(new URLSearchParams(window.location.search).get('page')) != null){
+      loadContents(localStorage.getItem(new URLSearchParams(window.location.search).get('page')))
+    }
+    document.querySelector('#viewSelect').addEventListener('change', () => {
+      addImg(data, document.querySelector('#searchByDesc label input').value);
+    });
+    });
+    
+    async function loadContents(passEntry = null){
+      startLoad();
+      console.log('aio');
+      if(passEntry == null){
+        passEntry = passEntryPlace.value;
+      }
+      const options = {
+        method: "POST",
+        /*headers: {
+          'Content-Type': 'application/json'
+        },*/
+        body: JSON.stringify({
+          'userName': userName,
+          'password': passEntry,
+          'Action': 'GetAllUserContent'
+        })
+      }
+      let response;
+      try{
+        response = await fetch(gasURL, options);
+        dataText = await response.text();
+        console.log(options);
+        console.log(dataText);
+        console.log(dataText == 'IncorrectPasswordError');
+        if(dataText == 'IncorrectPasswordError'){
+          passEntryPlace.setAttribute('style', 'border: solid 2px red;');
+          console.log(document.querySelectorAll('.warn'));
+          if(document.querySelectorAll('.warn').length){
+            console.log('fuckkkj');
+            endLoad();
+            return;
+          }
+          passEntryPlace.insertAdjacentHTML('afterend', '<p class="warn">パスワードが違います。</p>');
+          endLoad();
+          return;
+        }
+        pass = passEntry;
+        data = JSON.parse(dataText);
+        if(!response.ok){
+          console.log('バグった');
+          endLoad();
+          return;
+        }
+      } catch(e) {
+        console.log('エラった'+e);
+        endLoad();
+        return;
+      }
+      const illustPar = document.getElementById("illust");
+      Object.keys(data).forEach(k => {
+        if(data[k].img.length == 0){
+          delete(data[k]);
+        }
+      })
+      if(Object.keys(data).length == 0){
+        while (illustPar.firstChild) {
+          illustPar.removeChild(illustPar.firstChild);
+        }
+        addPassWord(userName, passEntry);
+        illustPar.insertAdjacentHTML('beforeend', '<h2>おや、コンテンツは空っぽのようです！</h2>');
+        console.log(illustPar);
+        document.querySelector('#settings').style.display = 'block';
+        console.log(document.querySelector('#settings').style.display)
+        const addURL = document.querySelector('#url');
+        const addBtn = document.querySelector('#settings #addBtn');;
+        addBtn.addEventListener('click', addContent);
+        const copyBtn = document.querySelector('#settings #copyBtn');
+        copyBtn.addEventListener('click', async () => {
+          let copyText = '';
+          Object.values(data).forEach(v => {
+            copyText += `${v.img} `;
+          })
+          console.log(copyText);
+          await navigator.clipboard.writeText(copyText);
+          copyBtn.textContent = 'コピーしました！';
+          setTimeout(() => {
+            copyBtn.textContent = '';
+          }, 3000);
+        });
+        endLoad();
+      }
+      else{
+        addPassWord(userName, passEntry);
+        addImg(data);
+      }
+    };
+    
+    async function addImg(data, matchDesc = null){
+      startLoad()
+      const view = document.querySelector('#viewSelect').value;
+      const userName = new URLSearchParams(window.location.search).get('page');
+      const illustPar = document.getElementById("illust");
+      while (illustPar.firstChild) {
+        illustPar.removeChild(illustPar.firstChild);
+      }
+      document.getElementById('searchByDesc').style.display = 'block';
+      const searchBox = document.querySelector('#searchByDesc label input');
+      searchBox.addEventListener('change', () => {
+        addImg(data, searchBox.value);
+      });
+        document.querySelector('#settings').style.display = 'block';
+        console.log(document.querySelector('#settings').style.display)
+        const addURL = document.querySelector('#url');
+        const addBtn = document.querySelector('#settings #addBtn');;
+        addBtn.addEventListener('click', addContent);
+        const copyBtn = document.querySelector('#settings #copyBtn');
+        copyBtn.addEventListener('click', async () => {
+          let copyText = '';
+          Object.values(data).forEach(v => {
+            copyText += `${v.img} `;
+          })
+          console.log(copyText);
+          await navigator.clipboard.writeText(copyText);
+          copyBtn.textContent = 'コピーしました！';
+          setTimeout(() => {
+            copyBtn.textContent = 'このファイルの全てのURLをコピーする';
+          }, 3000);
+        });
+        const nameBtn = document.getElementById('nameBtn');
+        nameBtn.addEventListener('click', async() => {
+          startLoad();
+          const newname = document.getElementById('newname').value;
+          if(newname.length){
+            const options = {
+              method: "POST",
+              /*headers: {
+                'Content-Type': 'application/json'
+              },*/
+              body: JSON.stringify({
+                'userName': userName,
+                'newname': newname,
+                'password': pass,
+                'Action': 'ChangeFileName'
+              })
+            };
+            try{
+              const response = await fetch(gasURL, options);
+              const dataText = await response.text();
+              console.log(dataText);
+              if (dataText == "IncorrectPasswordError") {
+                alert('パスワードバグった');
+                endLoad();
+                return;
+              }
+              if(dataText == 'AlreadyExcistsError'){
+                alert('その名前は既に存在します！\n別のものをお試しください。');
+                endLoad();
+                return;
+              }
+              if (!response.ok) {
+                console.log('バグった');
+                endLoad();
+                return;
+              }
+              } catch (e) {
+                console.log('エラった' + e);
+                endLoad();
+                return;
+              }
+            }
+            localStorage.removeItem(userName);
+            localStorage.setItem(newname, pass);
+            alert('成功しました。\nファイル名変更後のページをご利用ください');
+            window.open(`?page=${newname}`);
+          });
+        endLoad();
+      
+      if (!isNaN(parseInt(view)))
+      {
+        //n分割のやつ
+        Object.keys(data).forEach((k, i) => {
+          const imgRef = data[k].img;
+          const desc = data[k].desc;
+          const contentType = getUrlType(imgRef);
+          const illustNode = document.createElement(contentType);
+          if (contentType == 'video') {
+            console.log('isVideo');
+            illustNode.muted = true;
+            illustNode.autoplay = true;
+            illustNode.playsinline = true;
+            illustNode.loop = true;
+            illustNode.addEventListener('loadeddata', () => {
+              illustNode.setAttribute('class', 'ill');
+            });
+            illustNode.addEventListener('error', () => {
+              alert('しくりました');
+            });
+          } else {
+            console.log('isNotVideo');
+            illustNode.referrerPolicy = 'strict-origin-when-cross-origin';
+            illustNode.addEventListener('load', () => {
+              illustNode.setAttribute('class', 'ill');
+            });
+          }
+          console.log(matchDesc);
+          if(matchDesc != null && !desc.includes(matchDesc)){
+            return;
+          }
+          console.log(imgRef, contentType);
+          illustNode.setAttribute('src', imgRef);
+          illustNode.setAttribute('class', 'illUnloaded');
+          illustNode.addEventListener('click', () => {
+            window.open(`detail/?page=${imgRef}&desc=${desc}&user=${userName}&id=${k}`);
+          });
+          illustNode.addEventListener('error', () => {
+            const imgNode = document.createElement('img');
+            imgNode.src = 'failed.png';
+            imgNode.alt = '読込失敗';
+            imgNode.style.aspectRatio = '1';
+            imgNode.style.boxSizing = 'border-box';
+            imgNode.addEventListener('click', () => {
+            window.open(`detail/?page=${imgRef}&desc=${desc}&user=${userName}&id=${k}`);
+            });
+            imgNode.setAttribute('class', 'ill');
+            illustNode.replaceWith(imgNode);
+          });
+          if (parseInt(view) == 1) {
+            illustNode.style.aspectRatio = 'auto';
+          } else {
+            illustNode.style.aspectRatio = 1;
+          }
+          illustPar.appendChild(illustNode);
+        });
+        document.documentElement.style.setProperty('--img-size', `${100/view}%`);
+      }
+      else if (view == 'withDesc') {
+        //説明付きのやつ
+        console.log('withdescきた');
+        Object.keys(data).forEach((k, i) => {
+          const imgRef = data[k].img;
+          const desc = data[k].desc;
+          if(matchDesc != null && !desc.includes(matchDesc)){
+            return;
+          }
+          const contentType = getUrlType(imgRef);
+          const illustNode = document.createElement(contentType);
+          if (contentType == 'video') {
+            illustNode.muted = true;
+            illustNode.autoplay = true;
+            illustNode.playsinline = true;
+            illustNode.loop = true;
+            illustNode.addEventListener('loadeddata', () => {
+              illustNode.setAttribute('class', 'illWithDesc');
+            });
+          } else {
+            illustNode.referrerPolicy = 'strict-origin-when-cross-origin';
+            illustNode.addEventListener('load', () => {
+              illustNode.setAttribute('class', 'illWithDesc');
+            });
+          }
+          console.log(illustNode);
+          const illDescPar = document.createElement('div');
+          const descPar = document.createElement('div');
+          const descNode = document.createElement('p');
+          const deleteBtn = document.createElement('button');
+          const contentUrl = document.createElement('p');
+          illustNode.setAttribute('src', imgRef);
+          illustNode.setAttribute('class', 'illWithDescUnloaded');
+          illDescPar.addEventListener('click', () => {
+            window.open(`detail/?page=${imgRef}&desc=${desc}&user=${userName}&id=${k}`);
+          });
+          illustNode.addEventListener('error', () => {
+            const imgNode = document.createElement('img');
+            imgNode.src = 'failed.png';
+            imgNode.alt = '読込失敗';
+            imgNode.style.aspectRatio = '1';
+            imgNode.setAttribute('class', 'illWithDesc');
+            imgNode.style.boxSizing = 'border-box';
+            imgNode.addEventListener('click', () => {
+            window.open(`detail/?page=${imgRef}&desc=${desc}&user=${userName}&id=${k}`);
+            });
+            illustNode.replaceWith(imgNode);
+          });
+          illDescPar.setAttribute('class', 'illDescContainer');
+          descPar.style.width = '70%';
+          descNode.textContent = desc;
+          descNode.setAttribute('class', 'descWithIll');
+          deleteBtn.setAttribute('class', 'deleteBtn');
+          deleteBtn.textContent = 'このイラストを一覧から削除する';
+          deleteBtn.addEventListener('click', (event) => {
+            event.stopPropagation();
+            const isConfirmed = confirm('本当に削除しますか？\nデータを復元することは出来ません。')
+            if(isConfirmed){
+              console.log(k);
+              deleteContent(k);
+            }
+          })
+          contentUrl.textContent = imgRef;
+          contentUrl.setAttribute('class', 'urlWithIll');
+          descPar.appendChild(descNode);
+          descPar.appendChild(deleteBtn);
+          descPar.appendChild(contentUrl);
+          illDescPar.appendChild(illustNode);
+          illDescPar.appendChild(descPar);
+          illustPar.appendChild(illDescPar);
+          console.log(illDescPar);
+        })
+      }
+    }
+    
+    function getUrlType(url){
+      if(/\.(png|jpg|jpeg|webp|svg|heic|heif)(\?|#|$)/i.test(url)){
+        return 'img';
+      } else if(/\.(mp4|m4v|mp4v|webm|mov|qt|gifv|avi|wmv|asf|mkv|mk3d|flv|f4v|mpg|mpeg|mpe|mpv|m2v|m1v|mp2|mts|m2ts|vob|ogv|ogm|3gp|3g2|3gpp|3gpp2|rm|rmvb|divx|xvid|dv|dvr-ms|wtv|hevc|h264|h265|av1|vp8|vp9|mxf)(\?|#|$)/i.test(url)){
+        return 'video';
+      } else {
+        return 'img';
+      }
+    }
+    
+    async function addContent(){
+      startLoad();
+      const addURL = document.querySelector('#url').value;
+      console.log(addURL);
+      const userName = new URLSearchParams(window.location.search).get('page');
+      const password = localStorage.getItem(userName);
+      const gasURL = "https://script.google.com/macros/s/AKfycbwsu5W_j7Z1XO1Dk3a5-AXICk9W2eaiZetz89msLvlSXdc_cf34cgkWTsIilqqAjaj15g/exec";
+      const options = {
+        method: "POST",
+        /*headers: {
+          'Content-Type': 'application/json'
+        },*/
+        body: JSON.stringify({
+          'userName': userName,
+          'password': password,
+          'content': addURL,
+          'Action': 'AddContent'
+        })
+      }
+      try{
+        const response = await fetch(gasURL, options);
+        const dataText = await response.text();
+        console.log(dataText);
+        if(dataText == "IncorrectPasswordError"){
+          alert('パスワードバグった');
+          endLoad();
+          return;
+        }
+        if(!response.ok){
+          console.log('バグった');
+          endLoad();
+          return;
+        }
+      } catch(e) {
+        console.log('エラった'+e);
+        endLoad();
+        return;
+      }
+      alert('追加されました。\nユーザーページを更新すれば確認できます。')
+    }
+    
+    async function deleteContent(contentId){
+      const options = {
+        method: "POST",
+        /*headers: {
+          'Content-Type': 'application/json'
+        },*/
+        body: JSON.stringify({
+          'userName': userName,
+          'password': localStorage.getItem(userName),
+          'contentId': contentId,
+          'Action': 'RemoveContent'
+        })
+      }
+      let response;
+      try{
+        response = await fetch(gasURL, options);
+        dataText = await response.text();
+        console.log(options);
+        console.log(dataText);
+        console.log(dataText == 'IncorrectPasswordError');
+        if(dataText == 'IncorrectPasswordError'){
+          endLoad();
+          return;
+        }
+        if(!response.ok){
+          console.log('バグった');
+          endLoad();
+          return;
+        }
+      } catch(e) {
+        console.log('エラった'+e);
+        endLoad();
+        return;
+      }
+      alert('正常に削除されました！');
+    }
+
+    function addPassWord(userName, password){
+      if(localStorage.getItem(userName) != password){
+        localStorage.setItem(userName, password);
+      }
+      passPar = document.getElementById('password');
+      while(passPar.firstChild){
+        passPar.removeChild(passPar.firstChild);
+      }
+    }
+  </script>
+</body>
+
+</html>

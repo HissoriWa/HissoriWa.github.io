@@ -1,0 +1,380 @@
+@import url('https://fonts.googleapis.com/css2?family=Kaisei+Opti&display=swap');
+
+button,
+input,
+select,
+textarea {
+  font-family: inherit;
+}
+body{
+  margin: 0;
+  background-image: url('bg.png');
+  background-size: 45px auto;
+  color: white;
+  font-family: "Kaisei Opti", sans-serif;
+}
+.cb{
+  color: black;
+}
+a{
+  color: white;
+}
+#create a{
+  color: black;
+}
+ol li{
+  font-size: 30px;
+  margin-left: 5px;
+}
+ul li{
+  font-size: 20px;
+}
+button{
+  border: double 3px black;
+  border-radius: 5px;
+  background-color: white;
+  color: black;
+}
+details img{
+  width: 80vw;
+  border: solid 2px white;
+  display: block;
+  margin: auto;
+}
+details p{
+  font-size: 15px;
+  margin: 0 5px;
+}
+header h1{
+  text-align: center;
+  background-color: #0f172a;
+  width: 100vw;
+  margin: 0;
+  padding: 10px 0;
+}
+footer{
+  background-color: black;
+  min-height: 100px;
+}
+footer *{
+  width: 100%;
+  color: white;
+  text-align: center;
+  margin: 0;
+  font-size: 5px;
+}
+footer label{
+  display: block;
+  font-size: 30px;
+  font-weight: bold;
+  text-align: center;
+  padding: 10px 0;
+}
+h1{
+  text-align: center;
+  width: 100%;
+  margin: 0;
+  padding: 10px 0;
+}
+h2{
+  text-align: center;
+  margin: 0;
+  font-size: 40px;
+}
+menu{
+  display: flex;
+  margin: 0;
+  padding: 0;
+  width: 100%;
+}
+menu a{
+  text-align: center;
+  color: white;
+  font-weight: bold;
+  text-decoration: none;
+  border-bottom: solid 1px #8ea4d7;
+  padding: 5px 0;
+  flex: 1;
+  background-image: linear-gradient(#0f172a, #365296  );
+}
+form{
+  width: 80%;
+  text-align: left;
+  margin: 20px auto;
+}
+form input{
+  width: 100%;
+}
+form button{
+  display: block;
+  margin: 10px auto;
+}
+hr{
+  font-weight: 500;
+  width: 90vw;
+}
+select{
+  display: block;
+  margin: 10px 0 10px auto;
+  padding: 5px;
+  border: none;
+  border-radius: 10px;
+}
+input{
+  border: solid 2px #002A5B;
+  border-radius: 10px;
+  padding: 5px;
+  background-color: #f0f8ff;
+}
+p{
+  font-size: 20px;
+}
+footer p{
+  font-size: 7px;
+}
+dialog{
+  border: none;
+  outline: none;
+}
+iframe{
+  box-sizing: border-box;
+  border-color: black;
+}
+strong{
+  text-decoration: underline 3px white;
+}
+summary{
+  font-size: 30px;
+  font-weight: bold;
+}
+#create{
+  margin: 10px auto;
+  background-color: white;
+  border: 2px solid gray;
+  border-radius: 2px;
+  width: 80%;
+  text-align: center;
+  font-weight: bold;
+}
+#search{
+  margin: 10px 10%;
+  text-align: center;
+}
+#searchResults{
+  
+}
+#content{
+  overflow-y: hidden;
+  box-sizing: border-box;
+  width: 100%;
+  border-top: 0;
+  border-bottom: 0;
+  margin: 0 auto;
+  text-align: center;
+}
+#cover{
+  width: 100%;
+  height: 75%;
+}
+#illust{
+  position: relative;
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  width: 100%;
+  background-color: rgba(128,128,128,0.2);
+  backdrop-filter: blur(5px);
+  border: solid 3px black;
+  border-radius: 10px;
+  margin: 10px 0;
+  padding-top: 60px;
+  padding-bottom: 10px;
+  box-sizing: border-box;
+}
+#illust::after{
+  position: absolute;
+  content: '保存データ';
+  font-size: 35px;
+  font-weight: bold;
+  text-align: center;
+  top: 0;
+}
+#illust textarea{
+  width: 95%;
+}
+#illust button{
+  margin: 5px;
+  border: solid 2px lightblue;
+}
+#SNS{
+  display: flex;
+  gap: 30px;
+  justify-content: space-evenly;
+  align-items: center;
+}
+#SNS *{
+  text-align: center;
+  flex-basis: calc((100% - 60px)/3);
+  max-width: 60px;
+  aspect-ratio: 1;
+  margin: 10px 0;
+}
+#settings{
+  background-color: rgba(35, 59, 108, 0.7);
+  backdrop-filter: blur(2px);
+  text-align: center;
+  padding: 5px;
+}
+#settings button{
+  background-color: white;
+  border: none;
+  border-radius: 10px;
+  margin: 3px 0;
+}
+#loadWindow{
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 999;
+  width: 80vw;
+  height: 90vh;
+  text-align: center;
+  background-color: #6699CC;
+  border: solid 5px #002A5B;
+  border-radius: 20px;
+}
+#loadwindow *{
+  color: black;
+  font-size: 20px;
+}
+#searchByDesc{
+  display: none;
+  margin: 5px auto;
+}
+#searchByDesc input{
+  width: 90vw;
+}
+#ref{
+  display: block;
+  width: 90%;
+  margin: 5px 0;
+}
+.result{
+  position: relative;
+  display: block;
+  width: 80%;
+  background-color: #f0f8ff;
+  border: solid 5px #002A5B;
+  border-radius: 30px;
+  text-align: left;
+  margin: 5px auto;
+  padding: 10px;
+  text-decoration: none;
+  color: #002A5B;
+}
+.result::before{
+  content: "→";
+  position: absolute;
+  right: 5%;
+  top: 50%;
+  transform: translateY(-50%);
+  margin: auto 0;
+  line-height: 1;
+  font-weight: bold;
+}
+.mainIllust{
+  width: 100%;
+  height: auto;
+  padding: 10px 0;
+}
+.desc{
+  text-align: left;
+  margin: 10px;
+}
+.warn{
+  color: red;
+  margin: 0 5px;
+  font-weight: bold;
+  text-shadow: 3px 3px 5 silver;
+  -webkit-text-stroke: 1px #ffffff;
+  paint-order: stroke fill;
+}
+.loading{
+  animation: spin 0.5s linear infinite;
+  width: 100%;
+}
+@keyframes spin{
+  to{transform: rotate(360deg);}
+}
+.defContainer{
+  position: absolute;
+  top: 100px;
+  left: 50%;
+  width: 100%;
+  transform: translateX(-50%);
+  padding-top: 70px;
+}
+.illUnloaded{
+  margin: 0;
+  object-fit: cover;
+  width: var(--img-size);
+  box-sizing: border-box;
+  max-width: 99%;
+  opacity: 0;
+}
+.ill{
+  margin: 0;
+  object-fit: cover;
+  width: var(--img-size);
+  box-sizing: border-box;
+  max-width: 99%;
+}
+.illDescContainer{
+  display: flex;
+  margin: 5px;
+  justify-content: flex-start;
+  align-items: center;
+  width: 90%;
+  flex-wrap: wrap;
+  background-color: #6699CC;
+  border: solid 2px silver;
+}
+.illWithDescUnloaded{
+  margin: 5px;
+  aspect-ratio: 1;
+  object-fit: cover;
+  width: 25%;
+  flex-shrink: 0;
+  opacity: 0;
+}
+.illWithDesc{
+  margin: 5px;
+  aspect-ratio: 1;
+  object-fit: cover;
+  width: 25%;
+  flex-shrink: 0;
+}
+.descWithIll{
+  margin: 5px 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.urlWithIll{
+  margin: 5px 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-align: left;
+  font-size: 75%;
+  font-weight: 10;
+}
+.column{
+  background-color: rgba(35, 59, 108, 0.7);
+  backdrop-filter: blur(2px);
+  border: solid 3px black;
+  border-radius: 10px;
+  padding: 5px;
+  margin-bottom: 5px;
+}

@@ -1,0 +1,148 @@
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>保存屋さん</title>
+  <link rel="stylesheet" href="../style.css">
+  <script src="../command.js" defer></script>
+</head>
+
+<body>
+  <div id="main">
+    <header>
+      <h1>イラスト保存屋さん</h1>
+      <menu>
+        <a href='../index.html'>ホーム</a>
+        <a href='../newfile/'>ファイル作成</a>
+        <a href='../about/'>使い方</a>
+      </menu>
+    </header>
+    
+    <main>
+      <h1>ファイル作成</h1>
+      <form>
+        <div>
+        <label>ファイル名(半角英数字のみ, 必須)<br><input type="text" name="name" placeholder="ファイル名" required></label>
+        </div>
+        <div>
+          <label>パスワード(半角英数字のみ, 必須)<br><input type="password" name="pass" placeholder="パスワード" required></label>
+        </div>
+        <div>
+          <label>パスワード確認(必須)<br><input type="password" name="ensurePass" placeholder="パスワード" required></label>
+        </div>
+        <div>
+          <label>追加しておくイラスト<br>(複数ある場合、半角スペース区切り。<br>後からも追加できます)<br><input type="text" name="contents" placeholder="イラストの画像URL"></label>
+        </div>
+        <p class='warn'>パスワードを忘れてしまうと本人確認の手段はありません。</p>
+        <p class='warn'>必ずどこかにメモを取っておいてください。</p>
+        <button type="submit">ファイルを作成する</button>
+        <div></div>
+      </form>
+      <div id='loadWindow' style='display: none;'>
+        <h2>処理中です</h2>
+        <p>少しの間お待ちください。</p>
+        <p>この処理は数秒ほどで完了します…</p>
+        <img src='../content/loading.png' class='loading'>
+        <p>処理が終わらない場合は、お手数かけますが再読み込みをお願いします。</p>
+      </div>
+    </main>
+    
+    <footer>
+      <label>SNS</label>
+      <div id="SNS">
+        <a href='https://youtube.com/channel/UCnNEcmelr_ct8Ctf1b8pgGQ'><img src="../SNSImages/youtube.svg"></a>
+        <a href='https://twitter.com/suugaku_tanoshi'><img src="../SNSImages/x.svg"></a>
+        <a href="https://discord.com/users/wagacourse"><img src="../SNSImages/discord.svg"></a>
+      </div>
+      <p>Copyright © わがコースあそんでね</p>
+      <p>All Rights Reserved.</p>
+      <p>当サイトの許可なき無断転載および複製を禁じます(多少のスクリーンショットなどは除く)。</p>
+    </footer>
+  </div>
+  
+  <script>
+    window.addEventListener('DOMContentLoaded', () => {
+      const form = document.querySelector("form");
+      form.addEventListener("submit", async (event) => {
+        try {
+          startLoad();
+        } catch (e) {
+          alert('想定外のエラーが発生しました。\n再読込してください。');
+        };
+        event.preventDefault();
+        const json = Object.fromEntries(new FormData(form).entries());
+        const reg = /^[a-zA-Z0-9]+$/;
+        console.log(json);
+        for (const v of Object.values(json)){
+          if(!reg.test(v) && v.length != 0){
+            redden();
+            const warnPar = document.querySelector('form div');
+            const warn = document.createElement('p');
+            warn.textContent = '半角英数字以外は使用できません。';
+            warn.style = 'color: red; font-weight: bold; border: solid 2px red;';
+            if(warnPar.firstChild){
+              warnPar.replaceChild(warn, warnPar.firstChild);
+            } else {
+              warnPar.appendChild(warn);
+            }
+            endLoad();
+            return;
+          }
+        }
+        console.log('toppa');
+        const gasURL = "https://script.google.com/macros/s/AKfycbwsu5W_j7Z1XO1Dk3a5-AXICk9W2eaiZetz89msLvlSXdc_cf34cgkWTsIilqqAjaj15g/exec";
+        const options = {
+          method: 'POST',
+          /*headers: {
+            'Content-Type': 'application/json'
+          },*/
+          body: JSON.stringify({
+            'userName': json['name'],
+            'password': json['pass'],
+            'ensurePassword': json['ensurePass'],
+            'content': json['contents'],
+            'Action': 'CreateNew'
+          })
+        }
+        try{
+          const response = await fetch(gasURL, options);
+          const error = await response.json();
+          if(!response.ok){
+            console.log('バグった');
+            redden();
+            endLoad();
+            return;
+          }
+          if(error.AlreadyExcistsError){
+            redden();
+            endLoad();
+            alert('その名前は既に存在します！\n別のものをお試しください。');
+            return;
+          }
+          if(error.MissmatchError){
+            alert('パスワードが一致しません！\nもう一度ご確認ください。');
+            redden();
+            endLoad();
+            return;
+          }
+        } catch(e) {
+          alert('申し訳ありません。エラーが発生しました。\n' + e);
+          console.log('エラった'+e);
+          endLoad();
+          return;
+        }
+        alert('正常に作成されました！')
+        endLoad();
+        window.open('../');
+    })});
+    
+    function redden(){
+      document.querySelectorAll('form label input').forEach(i => {
+        i.setAttribute('style', 'border: solid 2px red');
+      })
+    }
+  </script>
+</body>
+
+</html>
