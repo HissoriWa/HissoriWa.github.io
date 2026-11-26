@@ -8,6 +8,13 @@ function endLoad(){
   document.querySelector('body').inert = false;
   console.log('おわた');
 }
-const ytLink = 'https://youtube.com/channel/UCnNEcmelr_ct8Ctf1b8pgGQ';
-const twLink = 'https://x.com/suugaku_tanoshi';
-const dcLink = 'https://discord.com/users/wagacourse';
+function termsofuse(){
+    if(localStorage.getItem('同意') != true){
+      const terms = document.getElementById('terms');
+      terms.showModal();
+      document.querySelector('#terms button').addEventListener('click', () => {
+        localStorage.setItem('同意', true)
+        terms.close();
+      });
+    }
+}
