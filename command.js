@@ -9,11 +9,11 @@ function endLoad(){
   console.log('おわた');
 }
 function termsofuse(){
-    if(localStorage.getItem('同意') != true){
+    if(localStorage.getItem('同意') != 'true'){
       const terms = document.getElementById('terms');
       terms.showModal();
       document.querySelector('#terms button').addEventListener('click', () => {
-        localStorage.setItem('同意', true)
+        localStorage.setItem('同意', 'true')
         terms.close();
       });
     }
