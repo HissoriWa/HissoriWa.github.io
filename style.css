@@ -238,7 +238,6 @@ dialog{
   transform: translate(-50%, -50%);
   z-index: 999;
   width: 80vw;
-  height: 90vh;
   text-align: center;
   background-color: #6699CC;
   border: solid 5px #002A5B;
