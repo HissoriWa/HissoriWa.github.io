@@ -58,6 +58,14 @@
     });
     let allIds;
     document.addEventListener('DOMContentLoaded', async() => {
+      if(localStorage.getItem('同意') != true){
+        const terms = document.getElementById('terms');
+        terms.showModal();
+        document.querySelector('#terms button').addEventListener('click', () => {
+          localStorage.setItem('同意', true)
+          terms.close();
+        });
+      }
       try{
         const gasURL = "https://script.google.com/macros/s/AKfycbwsu5W_j7Z1XO1Dk3a5-AXICk9W2eaiZetz89msLvlSXdc_cf34cgkWTsIilqqAjaj15g/exec";
         const response = await fetch(gasURL)
